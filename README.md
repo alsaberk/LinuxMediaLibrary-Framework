@@ -74,6 +74,30 @@ While the distributed library directory (`LinuxMediaLibrary-Git`) contains pre-p
 
 ---
 
+## 💡 Integration Best Practices
+
+### 1. Qt6 Integration & Shared OpenGL Contexts
+When integrating the GPU-accelerated **`LVideoWidget` (Qt6)** into multi-window Qt applications, you **MUST** enable shared OpenGL contexts before instantiating the `QApplication`. This ensures smooth hardware-accelerated playback across multiple video previews without context conflicts:
+```cpp
+int main(int argc, char *argv[]) {
+    // Enable shared OpenGL contexts (Mandatory for LML Qt widgets)
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+    
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
+}
+```
+
+### 2. GTK4 Performance
+For **`LVideoWidgetGTK`**, ensure your Linux desktop environment has active OpenGL rendering enabled. You can force GPU acceleration in GTK4 application startups by setting the environment variable:
+```bash
+GSK_RENDERER=gl ./YourGTKApplication
+```
+
+---
+
 ## 🎯 Target Applications
 
 * **Television Playout & Broadcast Automation Systems**
