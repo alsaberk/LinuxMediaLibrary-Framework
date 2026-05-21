@@ -1,0 +1,889 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1600</width>
+    <height>950</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>LinuxMediaLibrary - Professional Video Switcher &amp; Logo Overlay</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+    background-color: #0d0e12;
+}
+QWidget {
+    color: #e2e8f0;
+    font-family: &quot;Inter&quot;, &quot;Segoe UI&quot;, sans-serif;
+    font-size: 11px;
+}
+QGroupBox {
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 12px;
+    color: #38bdf8;
+    background-color: #111827;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    left: 15px;
+    padding: 0 8px;
+}
+QPushButton {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-weight: bold;
+    color: #f3f4f6;
+}
+QPushButton:hover {
+    background-color: #374151;
+    border: 1px solid #38bdf8;
+}
+QPushButton:pressed {
+    background-color: #0284c7;
+    color: #ffffff;
+}
+QSlider::groove:horizontal {
+    border: 1px solid #374151;
+    height: 8px;
+    background: #1f2937;
+    border-radius: 4px;
+}
+QSlider::sub-page:horizontal {
+    background: #38bdf8;
+    border-radius: 4px;
+}
+QSlider::handle:horizontal {
+    background: #ffffff;
+    border: 1px solid #38bdf8;
+    width: 16px;
+    height: 16px;
+    margin-top: -4px;
+    margin-bottom: -4px;
+    border-radius: 8px;
+}
+QComboBox {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    padding: 5px;
+    color: #f3f4f6;
+    min-width: 100px;
+}
+QComboBox:hover {
+    border: 1px solid #38bdf8;
+}
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left-width: 1px;
+    border-left-color: #374151;
+    border-left-style: solid;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+QSpinBox {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    padding: 5px;
+    color: #f3f4f6;
+}
+QLabel {
+    font-weight: 500;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainVerticalLayout">
+    <property name="spacing">
+     <number>12</number>
+    </property>
+    <property name="leftMargin">
+     <number>12</number>
+    </property>
+    <property name="topMargin">
+     <number>12</number>
+    </property>
+    <property name="rightMargin">
+     <number>12</number>
+    </property>
+    <property name="bottomMargin">
+     <number>12</number>
+    </property>
+    <item>
+     <layout class="QHBoxLayout" name="topRowLayout">
+      <property name="spacing">
+       <number>12</number>
+      </property>
+      <item>
+       <layout class="QVBoxLayout" name="file1Col">
+        <item>
+         <widget class="QLabel" name="file1Lbl">
+          <property name="styleSheet">
+           <string notr="true">font-weight: bold; color: #94a3b8;</string>
+          </property>
+          <property name="text">
+           <string>File 1 (Layer 1)</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QOpenGLWidget" name="file1Preview">
+          <property name="minimumSize">
+           <size>
+            <width>280</width>
+            <height>157</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>280</width>
+            <height>157</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="file2Col">
+        <item>
+         <widget class="QLabel" name="file2Lbl">
+          <property name="styleSheet">
+           <string notr="true">font-weight: bold; color: #94a3b8;</string>
+          </property>
+          <property name="text">
+           <string>File 2 (Layer 2)</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QOpenGLWidget" name="file2Preview">
+          <property name="minimumSize">
+           <size>
+            <width>280</width>
+            <height>157</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>280</width>
+            <height>157</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="live1Col">
+        <item>
+         <widget class="QLabel" name="live1Lbl">
+          <property name="styleSheet">
+           <string notr="true">font-weight: bold; color: #94a3b8;</string>
+          </property>
+          <property name="text">
+           <string>Live 1 (Layer 3)</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QOpenGLWidget" name="live1Preview">
+          <property name="minimumSize">
+           <size>
+            <width>280</width>
+            <height>157</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>280</width>
+            <height>157</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="live2Col">
+        <item>
+         <widget class="QLabel" name="live2Lbl">
+          <property name="styleSheet">
+           <string notr="true">font-weight: bold; color: #94a3b8;</string>
+          </property>
+          <property name="text">
+           <string>Live 2 (Layer 4)</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QOpenGLWidget" name="live2Preview">
+          <property name="minimumSize">
+           <size>
+            <width>280</width>
+            <height>157</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>280</width>
+            <height>157</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="middleRowLayout">
+      <property name="spacing">
+       <number>20</number>
+      </property>
+      <item>
+       <layout class="QVBoxLayout" name="prevBusCol">
+        <item>
+         <widget class="QLabel" name="prevTitleLbl">
+          <property name="styleSheet">
+           <string notr="true">font-weight: bold; font-size: 14px; color: #22c55e;</string>
+          </property>
+          <property name="text">
+           <string>PREVIEW (NEXT BUS)</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item alignment="Qt::AlignmentFlag::AlignCenter">
+         <widget class="QOpenGLWidget" name="previewPreview">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>640</width>
+            <height>360</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>640</width>
+            <height>360</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="progBusCol">
+        <item>
+         <widget class="QLabel" name="progTitleLbl">
+          <property name="styleSheet">
+           <string notr="true">font-weight: bold; font-size: 14px; color: #ef4444;</string>
+          </property>
+          <property name="text">
+           <string>PROGRAM (ON AIR &amp; LOGO)</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item alignment="Qt::AlignmentFlag::AlignCenter">
+         <widget class="QOpenGLWidget" name="programPreview">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>640</width>
+            <height>360</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>640</width>
+            <height>360</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="bottomPanelLayout">
+      <property name="spacing">
+       <number>12</number>
+      </property>
+      <item>
+       <widget class="QGroupBox" name="switcherBusGroup">
+        <property name="title">
+         <string>Video Switcher Bus Controls</string>
+        </property>
+        <layout class="QVBoxLayout" name="switcherBusLayout">
+         <property name="spacing">
+          <number>10</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="programRowLayout">
+           <item>
+            <widget class="QLabel" name="progRowLbl">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">font-weight: bold; color: #ef4444;</string>
+             </property>
+             <property name="text">
+              <string>PROGRAM BUS:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="progFile1Btn">
+             <property name="text">
+              <string>FILE 1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="progFile2Btn">
+             <property name="text">
+              <string>FILE 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="progLive1Btn">
+             <property name="text">
+              <string>LIVE 1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="progLive2Btn">
+             <property name="text">
+              <string>LIVE 2</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="previewRowLayout">
+           <item>
+            <widget class="QLabel" name="prevRowLbl">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">font-weight: bold; color: #22c55e;</string>
+             </property>
+             <property name="text">
+              <string>PREVIEW BUS:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="prevFile1Btn">
+             <property name="text">
+              <string>FILE 1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="prevFile2Btn">
+             <property name="text">
+              <string>FILE 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="prevLive1Btn">
+             <property name="text">
+              <string>LIVE 1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="prevLive2Btn">
+             <property name="text">
+              <string>LIVE 2</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="transControlsLayout">
+           <item>
+            <widget class="QLabel" name="transTypeLbl">
+             <property name="text">
+              <string>Transition:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="transTypeCb"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="cutBtn">
+             <property name="styleSheet">
+              <string notr="true">background-color: #2e303d; border-color: #4b526d; font-size: 12px;</string>
+             </property>
+             <property name="text">
+              <string>CUT</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="autoBtn">
+             <property name="styleSheet">
+              <string notr="true">background-color: #0284c7; border-color: #38bdf8; font-size: 12px;</string>
+             </property>
+             <property name="text">
+              <string>AUTO</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="stingerBtn">
+             <property name="styleSheet">
+              <string notr="true">background-color: #701a75; border-color: #d946ef; font-size: 12px;</string>
+             </property>
+             <property name="text">
+              <string>STINGER</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="tbarLayout">
+           <item>
+            <widget class="QLabel" name="tbarLbl">
+             <property name="text">
+              <string>T-BAR (Manual):</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSlider" name="tBarSlider">
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="sourcesControlPanel">
+        <property name="spacing">
+         <number>8</number>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="fileControlsGroup">
+          <property name="title">
+           <string>Media Players (File 1 &amp; File 2)</string>
+          </property>
+          <layout class="QGridLayout" name="fileControlGridLayout">
+           <property name="spacing">
+            <number>6</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="openFile1Btn">
+             <property name="text">
+              <string>Open File 1</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="playFile1Btn">
+             <property name="text">
+              <string>Play</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="stopFile1Btn">
+             <property name="text">
+              <string>Stop</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLabel" name="file1PathLbl">
+             <property name="text">
+              <string>No file</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="openFile2Btn">
+             <property name="text">
+              <string>Open File 2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QPushButton" name="playFile2Btn">
+             <property name="text">
+              <string>Play</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QPushButton" name="stopFile2Btn">
+             <property name="text">
+              <string>Stop</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLabel" name="file2PathLbl">
+             <property name="text">
+              <string>No file</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="liveControlsGroup">
+          <property name="title">
+           <string>Live Inputs (Live 1 &amp; Live 2)</string>
+          </property>
+          <layout class="QGridLayout" name="liveControlGridLayout">
+           <property name="spacing">
+            <number>6</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="live1LblDev">
+             <property name="text">
+              <string>Live 1 Device:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="live1DeviceCb"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QComboBox" name="live1ChannelCb"/>
+           </item>
+           <item row="0" column="3">
+            <widget class="QComboBox" name="live1FormatCb"/>
+           </item>
+           <item row="0" column="4">
+            <widget class="QPushButton" name="live1Btn">
+             <property name="text">
+              <string>Start Live 1</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="live2LblDev">
+             <property name="text">
+              <string>Live 2 Device:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="live2DeviceCb"/>
+           </item>
+           <item row="1" column="2">
+            <widget class="QComboBox" name="live2ChannelCb"/>
+           </item>
+           <item row="1" column="3">
+            <widget class="QComboBox" name="live2FormatCb"/>
+           </item>
+           <item row="1" column="4">
+            <widget class="QPushButton" name="live2Btn">
+             <property name="text">
+              <string>Start Live 2</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="overlaysControlPanel">
+        <property name="spacing">
+         <number>8</number>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="stingerGroup">
+          <property name="title">
+           <string>Stinger Settings</string>
+          </property>
+          <layout class="QGridLayout" name="stingerLayout">
+           <property name="spacing">
+            <number>6</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="stingerPathBtn">
+             <property name="text">
+              <string>Set Stinger Path</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="stingerPathLbl">
+             <property name="text">
+              <string>No transition loaded</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="stingerDurLbl">
+             <property name="text">
+              <string>Duration (ms):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="stingerDurationSb">
+             <property name="minimum">
+              <number>100</number>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
+             </property>
+             <property name="singleStep">
+              <number>100</number>
+             </property>
+             <property name="value">
+              <number>1500</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="logoGroup">
+          <property name="title">
+           <string>Program Mixer Logo Overlay</string>
+          </property>
+          <layout class="QGridLayout" name="logoLayout">
+           <property name="spacing">
+            <number>6</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="logoPathBtn">
+             <property name="text">
+              <string>Select PNG Logo</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="logoPathLbl">
+             <property name="text">
+              <string>No logo loaded</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="logoXLbl">
+             <property name="text">
+              <string>PosX (px):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSlider" name="logoXSlider">
+             <property name="maximum">
+              <number>1920</number>
+             </property>
+             <property name="value">
+              <number>80</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="logoYLbl">
+             <property name="text">
+              <string>PosY (px):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSlider" name="logoYSlider">
+             <property name="maximum">
+              <number>1080</number>
+             </property>
+             <property name="value">
+              <number>80</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="logoAlphaLbl">
+             <property name="text">
+              <string>Alpha:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSlider" name="logoAlphaSlider">
+             <property name="maximum">
+              <number>255</number>
+             </property>
+             <property name="value">
+              <number>255</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QPushButton" name="logoToggleBtn">
+             <property name="text">
+              <string>ENABLE LOGO OVERLAY</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="statusBarLayout">
+      <property name="spacing">
+       <number>15</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="fpsLbl">
+        <property name="styleSheet">
+         <string notr="true">font-weight: bold; color: #38bdf8;</string>
+        </property>
+        <property name="text">
+         <string>Mixer FPS:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="fpsValLbl">
+        <property name="text">
+         <string>0.00</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="tcodeLbl">
+        <property name="styleSheet">
+         <string notr="true">font-weight: bold; color: #38bdf8;</string>
+        </property>
+        <property name="text">
+         <string>Timecode:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="tcodeValLbl">
+        <property name="text">
+         <string>00:00:00:00</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="onAirLbl">
+        <property name="styleSheet">
+         <string notr="true">font-weight: bold; color: #38bdf8;</string>
+        </property>
+        <property name="text">
+         <string>On Air Source:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="onAirValLbl">
+        <property name="text">
+         <string>SubA</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

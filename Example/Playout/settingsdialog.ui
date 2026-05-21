@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsDialog</class>
+ <widget class="QDialog" name="SettingsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>500</width>
+    <height>450</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Broadcast Settings</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QDialog { background-color: #1a1a1a; color: #e0e0e0; }
+QGroupBox { border: 1px solid #333; border-radius: 6px; margin-top: 15px; font-weight: bold; padding-top: 20px; color: #55aaff; }
+QLabel { color: #bbb; }
+QComboBox { background-color: #252525; border: 1px solid #444; color: white; padding: 5px; border-radius: 4px; }
+QCheckBox { color: #ddd; spacing: 8px; }
+QCheckBox::indicator { width: 20px; height: 20px; }
+QPushButton { background-color: #333; color: white; border: 1px solid #444; padding: 10px 30px; border-radius: 4px; font-weight: bold; }
+QPushButton:hover { background-color: #444; border-color: #55aaff; }
+QPushButton#saveButton { background-color: #0055ff; border: none; }
+</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_Main">
+   <item>
+    <widget class="QGroupBox" name="outputGroup">
+     <property name="title">
+      <string> AUDIO &amp; VIDEO OUTPUT </string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_Output">
+      <property name="spacing">
+       <number>15</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_Device">
+        <item>
+         <widget class="QLabel" name="deviceLabel">
+          <property name="text">
+           <string>Output Interface:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="outputDeviceCombo">
+          <item>
+           <property name="text">
+            <string>NDI Output</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Blackmagic DeckLink</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_Profile">
+        <item>
+         <widget class="QLabel" name="profileLabel">
+          <property name="text">
+           <string>System Profile:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="profileCombo"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="enableOutputCheck">
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>ENABLE LIVE OUTPUT (SEND TO AIR)</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_Buttons">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="saveButton">
+       <property name="text">
+        <string>Save &amp; Apply</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1366</width>
+    <height>768</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>LinuxMediaLibrary - Video Mixer &amp; CG Overlay Example</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+    background-color: #121212;
+}
+QWidget {
+    color: #e0e0e0;
+    font-family: &quot;Segoe UI&quot;, &quot;Noto Sans&quot;, sans-serif;
+    font-size: 12px;
+}
+QGroupBox {
+    border: 2px solid #2a2a2a;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 13px;
+    color: #55aaff;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    left: 10px;
+    padding: 0 5px;
+}
+QPushButton {
+    background-color: #212121;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-weight: bold;
+    color: #ffffff;
+}
+QPushButton:hover {
+    background-color: #333333;
+    border: 1px solid #55aaff;
+}
+QPushButton:pressed {
+    background-color: #55aaff;
+    color: #121212;
+}
+QSlider::groove:horizontal {
+    border: 1px solid #3a3a3a;
+    height: 6px;
+    background: #212121;
+    border-radius: 3px;
+}
+QSlider::sub-page:horizontal {
+    background: #55aaff;
+    border-radius: 3px;
+}
+QSlider::handle:horizontal {
+    background: #ffffff;
+    border: 1px solid #55aaff;
+    width: 14px;
+    margin-top: -4px;
+    margin-bottom: -4px;
+    border-radius: 7px;
+}
+QLabel {
+    font-weight: 500;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="mainLayout">
+    <property name="spacing">
+     <number>15</number>
+    </property>
+    <property name="leftMargin">
+     <number>15</number>
+    </property>
+    <property name="topMargin">
+     <number>15</number>
+    </property>
+    <property name="rightMargin">
+     <number>15</number>
+    </property>
+    <property name="bottomMargin">
+     <number>15</number>
+    </property>
+    <item>
+     <layout class="QVBoxLayout" name="leftPanel">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="previewsLayout">
+        <property name="spacing">
+         <number>10</number>
+        </property>
+        <item>
+         <layout class="QVBoxLayout" name="file1PreviewCol">
+          <item>
+           <widget class="QLabel" name="file1Title">
+            <property name="text">
+             <string>File 1 (Full Screen Layer)</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignmentFlag::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QOpenGLWidget" name="file1Preview">
+            <property name="minimumSize">
+             <size>
+              <width>320</width>
+              <height>180</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>320</width>
+              <height>180</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="file2PreviewCol">
+          <item>
+           <widget class="QLabel" name="file2Title">
+            <property name="text">
+             <string>File 2 (Picture-in-Picture Layer)</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignmentFlag::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QOpenGLWidget" name="file2Preview">
+            <property name="minimumSize">
+             <size>
+              <width>320</width>
+              <height>180</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>320</width>
+              <height>180</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="mixerTitle">
+        <property name="text">
+         <string>Mixer Composite Output (Program Output)</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QOpenGLWidget" name="mixerPreview">
+        <property name="minimumSize">
+         <size>
+          <width>640</width>
+          <height>360</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="rightPanel">
+      <property name="spacing">
+       <number>15</number>
+      </property>
+      <item>
+       <widget class="QGroupBox" name="file1Group">
+        <property name="title">
+         <string>File 1 Controls</string>
+        </property>
+        <layout class="QVBoxLayout" name="file1GroupLayout">
+         <property name="spacing">
+          <number>8</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="file1Btns">
+           <item>
+            <widget class="QPushButton" name="openFile1Btn">
+             <property name="text">
+              <string>Open File 1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="playFile1Btn">
+             <property name="text">
+              <string>Play</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="stopFile1Btn">
+             <property name="text">
+              <string>Stop</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="file1PathLbl">
+           <property name="text">
+            <string>No file loaded</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="file2Group">
+        <property name="title">
+         <string>File 2 (PiP) Controls</string>
+        </property>
+        <layout class="QVBoxLayout" name="file2GroupLayout">
+         <property name="spacing">
+          <number>8</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="file2Btns">
+           <item>
+            <widget class="QPushButton" name="openFile2Btn">
+             <property name="text">
+              <string>Open File 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="playFile2Btn">
+             <property name="text">
+              <string>Play</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="stopFile2Btn">
+             <property name="text">
+              <string>Stop</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="file2PathLbl">
+           <property name="text">
+            <string>No file loaded</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="pipGroup">
+        <property name="title">
+         <string>Picture-in-Picture Layout</string>
+        </property>
+        <layout class="QGridLayout" name="pipGridLayout">
+         <property name="spacing">
+          <number>10</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="xLbl">
+           <property name="text">
+            <string>Position X:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSlider" name="pipXSlider">
+           <property name="maximum">
+            <number>1920</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="xValLbl">
+           <property name="text">
+            <string>0 px</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="yLbl">
+           <property name="text">
+            <string>Position Y:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSlider" name="pipYSlider">
+           <property name="maximum">
+            <number>1080</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="yValLbl">
+           <property name="text">
+            <string>0 px</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="wLbl">
+           <property name="text">
+            <string>Width:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSlider" name="pipWSlider">
+           <property name="maximum">
+            <number>1920</number>
+           </property>
+           <property name="value">
+            <number>640</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="wValLbl">
+           <property name="text">
+            <string>640 px</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="hLbl">
+           <property name="text">
+            <string>Height:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSlider" name="pipHSlider">
+           <property name="maximum">
+            <number>1080</number>
+           </property>
+           <property name="value">
+            <number>360</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="hValLbl">
+           <property name="text">
+            <string>360 px</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="aLbl">
+           <property name="text">
+            <string>Opacity:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSlider" name="pipAlphaSlider">
+           <property name="maximum">
+            <number>255</number>
+           </property>
+           <property name="value">
+            <number>255</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLabel" name="aValLbl">
+           <property name="text">
+            <string>255</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="cgGroup">
+        <property name="title">
+         <string>CG &amp; Overlay Layer (LCharacter)</string>
+        </property>
+        <layout class="QVBoxLayout" name="cgGroupLayout">
+         <property name="spacing">
+          <number>8</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="cgBtns1">
+           <item>
+            <widget class="QPushButton" name="addLogoBtn">
+             <property name="text">
+              <string>Add Logo</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="addLowerThirdBtn">
+             <property name="text">
+              <string>Add Lower Third</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="cgBtns2">
+           <item>
+            <widget class="QPushButton" name="addTickerBtn">
+             <property name="text">
+              <string>Add Ticker</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="clearCgBtn">
+             <property name="text">
+              <string>Clear CG</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: #3b1717;
+    border: 1px solid #732a2a;
+}
+QPushButton:hover {
+    background-color: #592424;
+    border: 1px solid #ff5555;
+}</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
