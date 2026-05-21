@@ -1,0 +1,46 @@
+LPreview: Framework-Agnostic Preview Module Documentation
+1. Overview
+LPreview is a bridge developed to render video sources (LObject) across different UI systems. The pointer (void*) passed to the previewEnable method is automatically processed according to the framework being used (Qt QWidget* or GTK GtkWidget*).
+2. Architectural Structure
+    • PIMPL Pattern: LPreview encapsulates interface details under an Impl class. This ensures the main project only needs to know about LPreview.h, while the underlying Qt or GTK engines handle the implementation.
+    • Framework Selection: The engine can be switched at runtime using the setProps("ui_framework", "qt") or "gtk" command.
+3. Usage Examples
+A. Usage with Qt (on QWidget)
+To embed a preview into a QWidget in Qt projects:
+C++
+#include "LPreview.h"
+
+// Inside MainWindow constructor or setup
+LPreview* preview = new LPreview();
+preview->setProps("ui_framework", "qt");
+preview->setProps("scale_type", "aspect-ratio");
+
+// ui->videoFrame is a QWidget pointer
+preview->previewEnable(ui->videoFrame, true, true); 
+preview->previewObject(myLObjectSource);
+B. Usage with GTK (on GtkWidget)
+To embed a preview into a GtkBox or GtkWindow in GTK projects:
+C++
+#include "LPreview.h"
+
+LPreview* preview = new LPreview();
+preview->setProps("ui_framework", "gtk");
+preview->setProps("preview_background", "gray");
+
+// Pass your GtkBox or GtkWindow widget as the parent
+preview->previewEnable(myGtkBox, true, true);
+preview->previewObject(myLObjectSource);
+4. Technical Specifications and Prop Settings
+Prop Key	Values	Description
+ui_framework	"qt", "gtk"	Determines which render engine to use.
+scale_type	"aspect-ratio", "crop"	Sets the fitting mode of the video within the frame.
+audio_meter	"true", "false"	Activates/deactivates audio level meters.
+preview_background	"black", "gray", etc.	Sets the background color.
+5. Statistics and Status Management
+    • previewObject(LObject* source): Connects the live camera (LLive) or file (LFile) object to be previewed.
+    • statusGet(int& status): Checks whether the preview is currently on the screen.
+    • setName() / setStatus(): Used to write dynamic text or status information (e.g., "On Air", "Offline") over the preview window.
+Important Notes
+    • Dynamic Changes: After previewEnable is called, changing settings via setProps updates the internalWidget objects instantly.
+    • Resource Cleanup: When the LPreview object is destroyed, the background objects (LVideoWidget for Qt or LVideoWidgetGTK for GTK) are automatically cleaned up from memory.
+This module is a critical layer, especially for systems that require multi-platform support or want to use different UI technologies within the same project (hybrid).
