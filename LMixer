@@ -1,0 +1,64 @@
+LMixer Class API Reference
+1. Overview & Concept
+The LMixer class is a hardware-accelerated, multi-layer real-time video and audio mixing engine within the LinuxMediaLibrary. It composites video frames coming from input sources (LFile, LAnimation, LLive, etc.) on the GPU using an OpenGL Offscreen Context (QOpenGLContext, QOffscreenSurface) and Framebuffer Object (FBO) architecture.
+Key Capabilities:
+    • Hardware-Accelerated Composition: Loads layers directly into GPU memory as RGBA or YUV pixels, and completes alpha blending, cropping, border, and border radius operations using vertex/fragment shaders with zero CPU load.
+    • Z-Index Layer Management: Each layer has an independent Z-Index value. Layers are dynamically sorted and stacked based on their depth values.
+    • Advanced Audio Mixing: The audio data of each layer can be independently toggled (audio flag). The mixer synchronously mixes the active audio channels at the highest broadcast quality (48kHz, Stereo, 16-bit PCM) into a single output signal.
+    • Independent Render Loop: Thanks to its internal mixerLoop thread, it provides a continuous and stable frame stream according to the target broadcast format (e.g., 1080p50 or 720p50).
+2. API Reference & Key Methods
+📌 Adding and Configuring Layers
+    • LLayerItem* addLayer(const std::string& layerID, LObject* source, int zIndex = 0, float posX = 0.0f, float posY = 0.0f, int alpha = 255, float width = -1.0f, float height = -1.0f) Adds a dynamic video source layer to the mixer or updates an existing layer.
+        ◦ layerID: Unique identification name for the layer.
+        ◦ source: A media source derived from LObject (LFile, LAnimation, etc.).
+        ◦ zIndex: Depth order (Layers with higher values appear on top).
+        ◦ alpha: Layer opacity (between 0 - 255).
+        ◦ width / height: Pixel size of the layer on the screen (-1 preserves the original size).
+    • LLayerItem* addImage(const std::string& layerID, const std::string& filePath, int zIndex = 0, float posX = 0.0f, float posY = 0.0f, int alpha = 255, float width = -1.0f, float height = -1.0f, float cropTop = 0.0f, float cropBottom = 0.0f, float cropLeft = 0.0f, float cropRight = 0.0f, int borderSize = 0, const std::string& borderColor = "#FFFFFF") Adds a static PNG/JPG image layer to the mixer. Supports advanced cropping and border parameters.
+    • void removeLayer(const std::string& layerID) Removes the specified layer from the mixer composition and clears its texture resources on the GPU.
+    • void setLayerBorderRadius(const std::string& layerID, int radiusPercent) Rounds the corners of the specified layer by a percentage (Ideal especially for Picture-in-Picture windows).
+📌 Output and Format Settings
+    • void setVideoFormat(const videoFormatProps& props) Sets the mixer's main output canvas resolution and frame rate (e.g., vF_HD1080_50p).
+    • void statusGet(int& status) Returns whether the mixer background loop is running (1: Active, 0: Inactive).
+3. Comprehensive Usage Example
+The following example demonstrates placing a second video in a Picture-in-Picture (PiP) style over a main video player (LFile), and overlaying transparent Lottie animation graphics (LAnimation) on top:
+C++
+#include "LMixer.h"
+#include "LFile.h"
+#include "LAnimation.h"
+
+// 1. Initialize Mixer and Media Objects
+LMixer* broadcastMixer = new LMixer();
+LFile* backgroundVideo = new LFile();
+LFile* pipVideo = new LFile();
+LAnimation* cgOverlay = new LAnimation();
+
+// 2. Set Main Broadcast Resolution (1080p 50 FPS)
+videoFormatProps mixerFormat;
+mixerFormat.setVideoFormat = vF::HD1080_50p;
+broadcastMixer->setVideoFormat(mixerFormat);
+cgOverlay->setVideoFormat(mixerFormat);
+
+// 3. Define Background Layer (Z-Index = 0, Full Screen)
+broadcastMixer->addLayer("bg_layer", backgroundVideo, 0, 0.0f, 0.0f, 255, 1920, 1080);
+
+// 4. Define Picture-in-Picture Layer (Z-Index = 1, Bottom Right, Scaled Down)
+// Corners rounded by 10% and only video is active
+LLayerItem* pipLayer = broadcastMixer->addLayer("pip_layer", pipVideo, 1, 1300.0f, 700.0f, 255, 500, 280);
+if (pipLayer) {
+    pipLayer->audio = false; // Mute PiP audio, keep only background audio
+    broadcastMixer->setLayerBorderRadius("pip_layer", 10);
+}
+
+// 5. Add Animated Graphic Layer on Top (Z-Index = 2)
+broadcastMixer->addLayer("cg_layer", cgOverlay, 2, 0.0f, 0.0f, 255, 1920, 1080);
+
+// 6. Start Playing Sources
+backgroundVideo->fileNameSet("/media/movie.mp4");
+backgroundVideo->play();
+
+pipVideo->fileNameSet("/media/cam_feed.mp4");
+pipVideo->play();
+
+cgOverlay->loadTemplate(1, "/templates/score_bug.json");
+cgOverlay->play(1);
