@@ -61,4 +61,5 @@ pipVideo->fileNameSet("/media/cam_feed.mp4");
 pipVideo->play();
 
 cgOverlay->loadTemplate(1, "/templates/score_bug.json");
+
 cgOverlay->play(1);
