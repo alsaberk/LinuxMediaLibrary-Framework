@@ -66,6 +66,6 @@ void runRecordingExample() {
         // 3. Stop Recording
         // recorder.Stop();
     } else {
-        std::cerr << "Failed to start recording!" << std::endl;
+        std::cerr << "Failed to start recording!" << std::endl; 
     }
 }
