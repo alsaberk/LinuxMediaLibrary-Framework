@@ -51,4 +51,4 @@ void runSwitcherExample() {
 }
 Important Tips
     • Adding Logos: If you want to add a logo using LMixer, you can manage layer management using the command: m_lMixer->addImage("logo_layer", "path/to/logo.png", 1, x, y, alpha);.
-    • Live Sources: You can keep the list of connected live cameras or devices up to date using the refreshLiveSources(liveIndex) function.
+    • Live Sources: You can keep the list of connected live cameras or devices up to date using the refreshLiveSources(liveIndex) function. 
