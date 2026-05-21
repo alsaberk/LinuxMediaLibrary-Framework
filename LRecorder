@@ -1,0 +1,71 @@
+LRecorder & Media Library Documentation
+1. Project Overview
+This project is a professional C++ media recording system that uses the FFmpeg library to process live video sources, provide previews, and record them in various formats (mp4, mkv, mov, etc.). The project features an asynchronous recording architecture and utilizes the Qt Framework for the user interface.
+2. Architectural Components
+A. LRecorder (Recording Engine)
+This is the primary recording class of the system. It implements the LSink interface and processes frames received from sources derived from LObject.
+    • Asynchronous Writing: The recording process is executed on a separate thread (m_recordThread). Frames are queued in m_frameQueue, and thread safety is maintained via m_queueMutex.
+    • PTS Calculation and Synchronization: Video and audio timestamps (PTS) are synchronized based on the elapsed time since the start of the recording (m_recordStartTime).
+    • Dynamic Encoder Management: It queries FFmpeg's encoder capabilities at runtime (getAvailableVideoCodecs) and configures them dynamically based on user selections.
+    • Timecode Support: Depending on the timecodeSource parameter, it has the feature to add timecode based on the system clock or the incoming source.
+B. MainWindow (UI Controller)
+This is the main control layer that manages the LLive, LPreview, and LRecorder objects.
+    • Dynamic Configuration: It transmits changes made in the user interface (applyRecorderSettings) to the LRecorder object in real-time.
+    • Mode Management: It manages the switching between "Standard" (pre-defined profiles) and "Custom" (manual resolution, FPS, bitrate) modes.
+    • Statistics Tracking: It updates the file size and recording duration on the UI by calling the LRecorder::getStats method every 200ms via QTimer.
+3. Core Workflows
+Recording Initialization (Record)
+    • Validation: File path and status checks are performed.
+    • Initialization: The initFFmpeg() method is called to create FFmpeg container and stream configurations.
+    • Sink Connection: The source (m_source) adds LRecorder as a sink.
+    • Loop: The encodeLoop() thread is started.
+Frame Processing (pushVideoFrame / pushAudioFrame)
+    • Each incoming frame is copied using av_frame_clone and added to the queue.
+    • Queue occupancy (>60 frames) is checked; frame dropping is performed if necessary to maintain system stability.
+    • Data from the source is converted to the format expected by the codec using sws_scale (video) and swr_convert (audio).
+Stopping Recording (Stop)
+    • Flush: The final packets remaining in the encoder's buffer are written using flushEncoder.
+    • Trailer: The container trailer (av_write_trailer) is written.
+    • Resource Cleanup: FFmpeg resources such as AVCodecContext, SwsContext, and SwrContext are freed.
+4. Technical Notes
+    • Libraries Used:
+        ◦ libavformat: Container management.
+        ◦ libavcodec: Video/Audio encoding (H.264, AAC, etc.).
+        ◦ libswscale: Color space and scaling conversions.
+        ◦ libswresample: Audio sample rate and channel conversions.
+    • Thread Safety: Communication between the recording thread and the main thread is synchronized using std::mutex and std::condition_variable.
+    • Error Handling: FFmpeg error return codes are checked and reported to the user via std::cerr or QMessageBox.
+Usage Example
+C++
+#include "LRecorder.h"
+#include <iostream>
+
+void runRecordingExample() {
+    LRecorder recorder;
+
+    // 1. Configure settings
+    recorder.setFilePath("test_video.mp4");
+    recorder.setContainer("mp4");
+    recorder.setVideoCodec("libx264");
+    recorder.setVideoBitrate(5000); // 5 Mbps
+    
+    // Video format setting (e.g., 1080p 50fps)
+    videoFormatProps vProps;
+    vProps.width = 1920;
+    vProps.height = 1080;
+    vProps.fps = 50.0;
+    recorder.setVideoFormat(vProps);
+
+    // 2. Start Recording
+    if (recorder.Record()) {
+        std::cout << "Recording started successfully." << std::endl;
+        
+        // It is assumed here that you are feeding frames from 
+        // LObject to recorder.pushVideoFrame(frame) within a loop.
+        
+        // 3. Stop Recording
+        // recorder.Stop();
+    } else {
+        std::cerr << "Failed to start recording!" << std::endl;
+    }
+}
