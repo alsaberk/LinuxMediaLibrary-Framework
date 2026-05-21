@@ -1,0 +1,67 @@
+LCharacter Class API Reference
+1. Overview & Concept
+The LCharacter class is a high-performance, Cairo-based Character Generator (CG) engine within the LinuxMediaLibrary. It is used to overlay dynamic text, crawling text (crawl/ticker), images, and alpha-channeled transparent shapes (rectangles) onto live broadcast video frames. Similar to the Medialooks architecture, it has the ability to logically group added items and take these groups on-air (show) or off-air (hide) with a single command. Utilizing its internally managed playbackLoop thread, it renders at the specified frame rate (e.g., 50 fps) and distributes AVFrame packets to its connected LObject hierarchy.
+2. Key Methods & API Reference
+📌 Adding and Managing Items
+The system uses overloaded addItem methods based on the type of object to be added, with each returning an LCGItem* pointer.
+    • Text: LCGTextItem* addItem(std::string id, int x, int y, int w, int h, LCGTextProps props)
+    • Crawl/Ticker: LCGCrawlItem* addItem(std::string id, int x, int y, int w, int h, LCGCrawlProps props)
+    • Image: LCGImageItem* addItem(std::string id, int x, int y, int w, int h, LCGImageProps props)
+    • Video: LCGVideoItem* addItem(std::string id, int x, int y, int w, int h, LCGVideoProps props)
+    • Rectangle/Background: LCGRectItem* addItem(std::string id, int x, int y, int w, int h, LCGRectProps props)
+Visibility and Cleanup Controls:
+    • void showItem(const std::string& id_or_group, bool show): Instantly toggles the on-screen visibility of the item or group with the specified ID.
+    • void remove(const std::string& id): Completely deletes the specified item from the composition and memory.
+    • void clear(): Clears all items from the rendered scene.
+📌 Grouping Methods
+A grouping architecture is used to bring multiple layers (e.g., lower-third background, speaker name, and title) on-screen simultaneously and synchronously during a live broadcast.
+    • std::string group(const std::vector<std::string>& itemIDs): Combines the provided item IDs into a single structure and returns the new system-assigned Group ID (e.g., Group_1).
+    • void unGroup(const std::string& groupID): Ungroups the specified group, but does not delete the individual items within it.
+    • LCGGroup* getGroupObject(const std::string& groupID): Returns the memory reference of the group object.
+📌 Dynamic Tags & Timers
+The LCharacter class detects special regex-based tags embedded within texts or crawlers and automatically updates them on every frame within its own thread, without requiring any external C++ code.
+    • Time and Date: time::HH:mm:ss, date::yyyy-MM-dd
+    • Count Up: tUp::mm:ss::00:05:00 (e.g., counts up to 5 minutes)
+    • Count Down: tDown::HH:mm:ss::01:00:00 (e.g., counts down from 1 hour to zero)
+📌 Format Configuration & XML Support
+    • void setVideoFormat(const videoFormatProps& props): Passes the resolution, frame rate (FPS), and color space (e.g., vF_HD1080_50p) at which the engine will render to the system.
+    • void saveToXMLFile(const std::string& filePath) / loadFromXMLFile(...): Saves the entire on-screen composition, groups, and settings to an XML file on disk to be restored later.
+3. Comprehensive Usage Example
+C++
+#include "LCharacter.h"
+
+// 1. Initialize CG Engine and Set Format
+LCharacter* cgEngine = new LCharacter();
+videoFormatProps formatProps;
+formatProps.setVideoFormat = vF_HD1080_50p;
+cgEngine->setVideoFormat(formatProps);
+
+// 2. Add Semi-Transparent Background (Lower Third Base Layer)
+LCGRectProps rectProps;
+rectProps.bgType = "Color";
+rectProps.bgColor = "#111111"; // Dark Gray
+rectProps.bgAlpha = 220;       // Opacity Value
+cgEngine->addItem("lt_bg", 100, 800, 1000, 150, rectProps);
+
+// 3. Add Headline Text
+LCGTextProps titleProps;
+titleProps.text = "LIVE BROADCAST";
+titleProps.font = "Arial";
+titleProps.fontSize = 40;
+titleProps.color = "#FF0000"; // Red Color
+cgEngine->addItem("lt_title", 120, 820, 960, 50, titleProps);
+
+// 4. Add Dynamic Clock Display (Updates automatically)
+LCGTextProps clockProps;
+clockProps.text = "Current Time: time::HH:mm:ss";
+clockProps.font = "Arial";
+clockProps.fontSize = 30;
+clockProps.color = "#FFFFFF"; // White
+cgEngine->addItem("lt_clock", 120, 880, 960, 50, clockProps);
+
+// 5. Group Items as a Single Entity
+std::vector<std::string> ltItems = {"lt_bg", "lt_title", "lt_clock"};
+std::string groupID = cgEngine->group(ltItems);
+
+// 6. Show Group on Screen (Take on-air)
+cgEngine->showItem(groupID, true);
