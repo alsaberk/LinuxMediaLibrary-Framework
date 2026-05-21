@@ -64,4 +64,5 @@ std::vector<std::string> ltItems = {"lt_bg", "lt_title", "lt_clock"};
 std::string groupID = cgEngine->group(ltItems);
 
 // 6. Show Group on Screen (Take on-air)
+
 cgEngine->showItem(groupID, true);
