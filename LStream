@@ -1,0 +1,100 @@
+LStream & Live Streaming Module Documentation
+1. Project Overview
+LStream is developed to broadcast media streams to remote servers (RTMP, RTSP, etc.) using an FFmpeg-based architecture. Implementing the LSink interface, this class aims to provide low-latency broadcasting by creating an asynchronous streaming pipeline.
+2. Core Components
+A. LStream (Streaming Engine)
+Manages the entire lifecycle of the broadcast stream.
+    • Latency Prevention: Configured with tune=zerolatency and ultrafast preset settings, it operates with a "GOP" (Group of Pictures) size of 30 frames (approximately 1-2 seconds), which is optimal for live streaming.
+    • Asynchronous Streaming Pipeline: Incoming frames are stored in a thread-safe manner within m_frameQueue. The m_streamThread continuously monitors this queue to send packets to the streaming server.
+    • Synchronization: Audio and video are aligned using PTS (Presentation Time Stamp) values to prevent drift during the broadcast.
+B. FFmpeg Integration
+    • Container Management: Supports streaming protocols such as RTMP via libavformat.
+    • Image Processing: Uses libswscale to convert source images to the broadcast format (resolution, color space).
+    • Audio Processing: Uses libswresample to normalize the audio sample rate and channel count to the target broadcast format (e.g., 48kHz Stereo).
+3. Core Workflows
+Broadcast Initialization
+    • The destination is defined using setStreamUrl and setStreamKey.
+    • initFFmpeg() is called to create the streaming container and codec context configurations.
+    • The streamLoop() thread is started to begin processing the data in m_frameQueue.
+Frame Processing (Frame Pipeline)
+    • Source objects connect to LStream as a sink.
+    • Incoming frames are cloned using av_frame_clone and added to the queue.
+    • Packets encoded in H.264 or AAC format using libavcodec are transmitted to the remote server via av_interleaved_write_frame.
+4. Usage Example
+The following example demonstrates how to configure an LStream object and start a broadcast:
+C++
+#include "LStream.h"
+#include <iostream>
+
+void runStreamingExample() {
+    LStream streamer;
+
+    // 1. Setting Broadcast Information
+    streamer.setStreamUrl("rtmp://live.twitch.tv/app/");
+    streamer.setStreamKey("live_XXXX_XXXX");
+
+    // 2. Video and Audio Settings
+    streamer.setVideoCodec("libx264");
+    streamer.setVideoBitrate(4000); // 4 Mbps
+    streamer.setAudioCodec("aac");
+    streamer.setAudioBitrate(128);
+
+    // 3. Format Configuration
+    videoFormatProps vProps;
+    vProps.width = 1920;
+    vProps.height = 1080;
+    vProps.fps = 30.0;
+    streamer.setVideoFormat(vProps);
+
+    // 4. Starting the Broadcast
+    std::cout << "Starting stream..." << std::endl;
+    if (streamer.Start()) {
+        std::cout << "Stream started successfully!" << std::endl;
+        
+        // After this point, you send frames from LObject 
+        // using streamer.pushVideoFrame(frame)
+        
+        // To stop the stream:
+        // streamer.Stop();
+    } else {
+        std::cerr << "Failed to start stream!" << std::endl;
+    }
+}
+Technical Tips:
+    • Optimizing Latency: If you experience latency during streaming, ensure that the {"preset", "ultrafast"} setting is active in m_customOptions.
+    • Queue Management: To protect system resources, the frame-dropping logic inside pushVideoFrame runs automatically when m_frameQueue is full.
+5. Streaming Statistics (Stats)
+You can use the LStream::getStats method to monitor network conditions, frame drops, and latency in real-time.
+Stats Structure
+C++
+struct Stats {
+    int64_t bytesSent = 0;       // Total data sent (bytes)
+    double durationSec = 0.0;    // Total broadcast duration
+    double fps = 0.0;           // Instantaneous broadcast frame rate
+    int droppedFrames = 0;      // Frame loss in the streaming pipeline
+    int bufferedFrames = 0;     // Frames waiting to be processed
+    double avSyncMs = 0.0;       // Audio-video synchronization drift
+};
+Example Statistics Usage
+While the stream is running, you can retrieve this data using a QTimer or a loop and reflect it in your UI:
+C++
+#include "LStream.h"
+#include <iostream>
+
+void displayStreamingStats(LStream& streamer) {
+    LStream::Stats stats;
+    streamer.getStats(stats);
+
+    std::cout << "--- Streaming Statistics ---" << std::endl;
+    std::cout << "Data Sent: " << stats.bytesSent / 1024 << " KB" << std::endl;
+    std::cout << "Frame Rate (FPS): " << stats.fps << std::endl;
+    std::cout << "Dropped Frames: " << stats.droppedFrames << std::endl;
+    std::cout << "Buffered Frames: " << stats.bufferedFrames << std::endl;
+    
+    if (stats.avSyncMs > 100.0) {
+        std::cout << "WARNING: High sync drift!" << std::endl;
+    }
+}
+Important Notes:
+    • Queue Management: If the bufferedFrames value is constantly increasing, it means your internet upload speed is insufficient to support the chosen videoBitrate. It is recommended to select a lower bit rate.
+    • Synchronization: The avSyncMs value measures whether audio and video are at the same timestamp (PTS). A value close to 0 indicates high broadcast quality.
