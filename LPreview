@@ -43,4 +43,4 @@ preview_background	"black", "gray", etc.	Sets the background color.
 Important Notes
     • Dynamic Changes: After previewEnable is called, changing settings via setProps updates the internalWidget objects instantly.
     • Resource Cleanup: When the LPreview object is destroyed, the background objects (LVideoWidget for Qt or LVideoWidgetGTK for GTK) are automatically cleaned up from memory.
-This module is a critical layer, especially for systems that require multi-platform support or want to use different UI technologies within the same project (hybrid).
+This module is a critical layer, especially for systems that require multi-platform support or want to use different UI technologies within the same project (hybrid). 
