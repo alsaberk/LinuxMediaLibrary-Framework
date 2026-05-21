@@ -70,4 +70,4 @@ if (cgEngine->loadTemplate(2, "/templates/lowerthird.json")) {
 
 // ... Some time later, when the control room operator presses the "Remove" (Stop) button:
 // This command does not instantly close the player; it jumps to frame 31 where the "OUT" marker is located and completes the out-animation.
-cgEngine->stop(2);
+cgEngine->stop(2); 
