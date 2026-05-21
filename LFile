@@ -1,0 +1,87 @@
+ LFile Class API Reference
+1. Overview & Concept
+The LFile class is the core file-reading and media playback engine of the LinuxMediaLibrary framework. Derived from the LObject class, it reads local video/audio files (MP4, MKV, MOV, etc.) or image sequences, decodes them using the FFmpeg architecture, and distributes them frame-by-frame (AVFrame) synchronously to other targets (LPreview, LMixer, LOutput).
+Key Capabilities:
+    • Advanced Playback Control: Supports playback, pause, millisecond-precision seeking, and definition of In/Out points.
+    • FFmpeg Filter Integration: Can apply real-time FFmpeg filters (avfilter) to video and audio data (e.g., color correction, deinterlacing, or audio delay).
+    • Hardware Acceleration (GPU Bypass): When necessary, it can bypass CPU-based filter stages (gpu=true) to enable zero-copy rendering directly at the hardware level.
+    • Synchronization: Through its internal decodeLoop and independent audio/video thread architecture, it resolves asynchronous issues such as audio_delay and video_delay by referencing hardware master clocks.
+2. API Reference & Key Methods
+📌 Media Playback Controls
+    • void fileNameSet(const std::string& filePath)
+      Sets the disk path of the media file to be played. If the engine is already running, it safely stops the previous playback and prepares the new file.
+    • bool play()
+      Starts media playback. It initializes FFmpeg contexts, opens codecs, and triggers decoding threads.
+    • void pause(double ms = 0)
+      Pauses playback. If a value greater than 0 is provided to the ms parameter (e.g., pause(5000)), the player automatically calls resume() after the specified milliseconds.
+    • void resume()
+      Resumes paused media from its current position.
+    • void stop()
+      Completely stops playback, cleans up all temporary allocations (SwsContext, SwrContext, AVFrame, etc.) in memory, and terminates decoding threads.
+📌 Navigation and Playback Rate (Seeking & Rate)
+These functions operate based on millisecond (ms) precision, following the Medialooks architectural standard.
+    • void PosSet(double ms) / double PosGet()
+      Seeks the playback position to the specified millisecond (ms) or returns the current playback position.
+    • void RateSet(double rate) / double RateGet()
+      Dynamically changes the playback speed (e.g., 1.0 is normal speed, 2.0 is 2x fast-forward, 0.5 is slow motion).
+    • void InOutSet(double inMs, double outMs)
+      Sets In (Start) and Out (End) points to play only a specific range of the file. (Setting to 0 removes the boundaries).
+    • double getDurationMs()
+      Returns the total duration of the loaded file in milliseconds.
+📌 Format and Real-Time Filters
+    • void setVideoFormat(const videoFormatProps& props)
+      Determines the broadcast standard (resolution, FPS, color space) to which decoded raw pixels will be standardized before distribution (e.g., vF_HD1080_50p).
+    • void addFilter(LFilter* filter)
+      Attaches an LFilter object to the media file (used for tasks such as increasing video brightness or applying EQ to audio).
+3. Properties and Configuration
+The setProps(key, value) function is used to dynamically manage the internal behavior of the class.
+Key	Value Type	Description
+"loop"	"true", "false"	Automatically loops back to the start when the video ends.
+"gpu"	"true", "false"	Performance mode. When "true", CPU-based avfilter stages are bypassed, and frames are sent directly to the destination.
+"audio_delay"	Int (ms)	Synchronizes audio by shifting the audio track forward or backward by the specified milliseconds.
+"video_delay"	Int (ms)	Delays the distribution of video frames by the specified milliseconds.
+"scale_type"	String	Determines how the video fits the target format: "letter-box" (with black bars), "crop", or "stretch".
+"scaling_quality"	Int	SWS Scaling quality. 0: SWS_FAST_BILINEAR, 2: SWS_BILINEAR, 3: SWS_LANCZOS.
+4. Comprehensive Usage Example
+The following example, prepared based on the mainwindow.cpp architecture, demonstrates how the LFile class opens a file from a playlist, attaches real-time filters, and routes the output to a preview widget.
+C++
+#include "LFile.h"
+#include "LPreview.h"
+#include "LFilter.h"
+#include "LFormat.h"
+
+// 1. Initialize Objects
+LFile* myPlayer = new LFile();
+LPreview* playerPreview = new LPreview();
+
+// 2. Set Video Format (e.g., 1080p 50fps)
+videoFormatProps vProps;
+vProps.setVideoFormat = vF::HD1080_50p;
+myPlayer->setVideoFormat(vProps);
+
+// 3. Define Properties
+myPlayer->setProps("loop", "true");           // Play in an infinite loop
+myPlayer->setProps("gpu", "false");           // Set to false to enable CPU/Filter mode
+myPlayer->setProps("scale_type", "letter-box"); // Preserve aspect ratio
+myPlayer->setProps("scaling_quality", "2");   // Use Bilinear scaling
+
+// 4. Add Real-Time Filters (using LFilter class)
+LFilter* colorFilter = new LFilter(LFilter::Video);
+colorFilter->setProps("eq", "brightness=0.1:contrast=1.2:saturation=1.5");
+myPlayer->addFilter(colorFilter);
+
+LFilter* audioDelayFilter = new LFilter(LFilter::Audio);
+audioDelayFilter->setProps("adelay", "500|500"); // 500ms delay on left and right channels
+myPlayer->addFilter(audioDelayFilter);
+
+// 5. Route Output to Target (Preview)
+// (myQtWidgetHandle is your UI's QOpenGLWidget reference)
+playerPreview->previewEnable(myQtWidgetHandle, true, true);
+playerPreview->previewObject(myPlayer);
+
+// 6. Load File and Start Playback
+myPlayer->fileNameSet("/media/videos/commercial_break.mp4");
+myPlayer->play();
+
+// To seek to 10 seconds (10000 ms) during playback:
+// myPlayer->PosSet(10000.0);
