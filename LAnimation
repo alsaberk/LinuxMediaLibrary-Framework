@@ -1,0 +1,73 @@
+LAnimation Class API Reference
+1. Overview & Concept
+The LAnimation class, part of the LinuxMediaLibrary, is a multi-layer Lottie animation engine powered by the ThorVG library. It resolves vector animations directly in-memory and converts them into standard video frames to be routed to hardware-accelerated mixers (e.g., LMixer). It has the ability to dynamically change texts, images, and colors within Lottie (.json) files (created with After Effects or Cavalry) at runtime, without the need to create temporary files on disk.
+Key Capabilities:
+    • Multi-layer Architecture: Utilizing a Layer ID (Z-index) logic, it can independently load, update, and play multiple Lottie animations simultaneously.
+    • Dynamic Data Injection: By directly manipulating the JSON tree within the animation, it can update names, scores, colors, or image layers in real-time at 50-60 frames per second.
+    • Timeline and Markers: By defining special markers such as STOP and OUT, it allows graphics and lower-thirds in live broadcasts to pause on screen for a specific duration and exit gracefully (with an out-animation) upon command.
+2. API Reference & Key Methods
+📌 Loading and Playback Controls
+All multi-layer methods below accept a layerId parameter. (Note: The class also has methods without this parameter for backward compatibility; if layerId is not specified, operations default to Layer 0).
+    • bool loadTemplate(int layerId, const std::string& jsonPath) Loads the Lottie JSON file from the disk into the specified layerId target and stores it in memory. Returns true if loading is successful.
+    • void play(int layerId) Starts playing the animation on the relevant layer.
+    • void stop(int layerId) Gracefully stops the animation instead of cutting it off instantly. If an "OUT" marker was previously defined for the layer, it jumps directly to this out-frame, plays the out-animation, and destroys the layer upon completion.
+    • void close(int layerId) Forcibly terminates the animation and rendering processes without waiting, completely clearing the layer from memory.
+    • void addMarker(int layerId, const std::string& name, int frame) Adds a logical marker to a specific frame on the timeline. Typically used to define broadcast pause points (STOP) and exit points (OUT).
+📌 Dynamic Lottie Manipulation (In-Memory)
+These methods can be called while the animation is running or just before rendering, allowing live manipulation of the vector structure.
+    • void update(int layerId, const std::string& key, const std::string& value) Changes the value of text layers inside the Lottie. Ex: Used to instantly update a team name in a sports match.
+    • void updateColor(int layerId, const std::string& layerName, const std::string& hexColor1, const std::string& hexColor2 = "", const std::string& propertyName = "Color") Changes the Fill or Stroke colors of Shape layers. By accepting two HEX color codes, it also supports certain advanced fill/gradient types.
+    • void updateImage(int layerId, const std::string& assetId, const std::string& imagePath) Replaces a placeholder image inside the Lottie with a different image from the disk.
+📌 Format Configuration
+    • void setVideoFormat(const videoFormatProps& props) Sets the format so that it can render at the exact same frame size and framerate as the connected mixer infrastructure (e.g., 1080p50).
+3. Comprehensive Usage Examples
+The following usage scenarios, extracted from your integrated Qt interface (mainwindow.cpp), demonstrate the module's role in professional broadcasting workflows.
+Example 1: Dynamic Scoreboard Graphic (Layer 1)
+This example demonstrates how team information (names, scores, and team colors) is instantly injected into the Lottie vector and displayed on screen the moment the animation is loaded into memory.
+C++
+// 1. Initialize Engine and Broadcast Format
+LAnimation* cgEngine = new LAnimation();
+videoFormatProps formatProps;
+formatProps.setVideoFormat = vF::HD1080_50p;
+cgEngine->setVideoFormat(formatProps);
+
+// 2. Load Scoreboard Template into Layer 1
+if (cgEngine->loadTemplate(1, "/templates/scoreboard.json")) {
+    
+    // 3. Instantly Update Texts (Team Names and Score)
+    cgEngine->update(1, "homeclub", "GALATASARAY");
+    cgEngine->update(1, "guestclub", "FENERBAHÇE");
+    cgEngine->update(1, "homescore", "2");
+    cgEngine->update(1, "guestscore", "1");
+    
+    // 4. Change Shape Colors using HEX Codes
+    cgEngine->updateColor(1, "homecolor", "#FF0000"); // Red
+    cgEngine->updateColor(1, "guestcolor", "#0000FF"); // Blue
+    
+    // 5. Take Animation Live
+    cgEngine->play(1);
+}
+Example 2: Lower Third and Marker Triggering (Layer 2)
+Lower third graphics in broadcasting typically appear on screen, remain "open" for a certain period, and disappear by playing an out-animation upon a command from the control room. This process is handled using addMarker and stop.
+C++
+// 1. Load Lower Third Template into Layer 2 (Different Z-Index)
+if (cgEngine->loadTemplate(2, "/templates/lowerthird.json")) {
+    
+    // 2. Marker Settings
+    // Animation will freeze at frame 30 (STOP)
+    cgEngine->addMarker(2, "STOP", 30);
+    // Out-animation start point is set to frame 31 (OUT)
+    cgEngine->addMarker(2, "OUT", 31);
+    
+    // 3. Content and Color Injection
+    cgEngine->update(2, "upText", "BREAKING NEWS");
+    cgEngine->update(2, "downText", "API Documentation Successfully Created.");
+    cgEngine->updateColor(2, "upTextBG", "#4f46e5");
+    
+    // 4. Play Graphic (Animation will animate in and wait at frame 30, which has the STOP marker)
+    cgEngine->play(2);
+}
+
+// ... Some time later, when the control room operator presses the "Remove" (Stop) button:
+// This command does not instantly close the player; it jumps to frame 31 where the "OUT" marker is located and completes the out-animation.
+cgEngine->stop(2);
