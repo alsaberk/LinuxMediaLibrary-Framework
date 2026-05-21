@@ -97,4 +97,4 @@ void displayStreamingStats(LStream& streamer) {
 }
 Important Notes:
     • Queue Management: If the bufferedFrames value is constantly increasing, it means your internet upload speed is insufficient to support the chosen videoBitrate. It is recommended to select a lower bit rate.
-    • Synchronization: The avSyncMs value measures whether audio and video are at the same timestamp (PTS). A value close to 0 indicates high broadcast quality.
+    • Synchronization: The avSyncMs value measures whether audio and video are at the same timestamp (PTS). A value close to 0 indicates high broadcast quality. 
