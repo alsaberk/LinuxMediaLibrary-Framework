@@ -1,0 +1,82 @@
+LOutput Class API Reference
+1. Overview & Concept
+The LOutput class is the broadcast, transmission, and hardware output (egress) engine of the LinuxMediaLibrary framework that connects to the outside world. It is derived from the LSink interface; thus, it can synchronously consume raw video and audio frames (AVFrame) coming from an LMixer, LSwitcher, or directly from an LFile source.
+Key Capabilities:
+    • Hardware Broadcast Output (SDI/HDMI): By providing native integration with Blackmagic Design DeckLink cards, it outputs raw YUV frames to physical SDI or HDMI outputs at near-zero latency, strictly complying with television broadcasting standards.
+    • Network-Based Broadcasting (NDI® Sender): Supports the NewTek NDI® protocol. It operates as a high-quality, alpha-channel-supported (transparency) video sender that can be easily detected by other vision mixers or broadcast software (OBS, vMix, etc.) on the local network.
+    • Asynchronous Conversion Pipeline: Thanks to its internal asynchronous output thread (m_outputThread) and queue mechanism, it efficiently balances the clock differences between the input signal and hardware speed. Utilizing the FFmpeg SwsContext and SwrContext architecture, it converts raw frames on the fly to the target device's required resolution, color space (UYVY422, etc.), and audio sample rate (48kHz, 16-bit Stereo PCM).
+    • Live Statistics Tracking: It continuously tracks the number of distributed frames (displayedFrames) and frames skipped/dropped due to system bottlenecks (droppedFrames) with millisecond accuracy.
+2. API Reference & Key Methods
+📌 Device and Output Management
+    • void setDevice(int index)
+      Selects the active output interface. It lists the DeckLink hardware indices; the last element of the list is dynamically allocated for the "NDI Sender" output.
+    • void setEnabled(bool enabled)
+      Starts or stops the output engine. When set to true, it triggers the internal startDeckLink() or startNDI() functions based on the selected mode and establishes the asynchronous buffer queue.
+    • void setSource(LObject* source)
+      Determines from which source the output engine will receive its frame feed. It establishes the source->addSink(this) relationship in the background.
+    • void setProps(const std::string& key, const std::string& value)
+      Dynamically configures the output parameters.
+Key	Value Type	Description
+"audio_gain"	Float (0.0 - 2.0)	The gain/volume multiplier of the audio signal sent to the hardware.
+"scaling_quality"	Int (0: Fast, 2: Bilinear, 3: Lanczos)	Resolution and scaling conversion quality.
+"timecode"	"true", "false"	Enables the embedding of hardware timecode metadata to the output signal.
+📌 Resolution and Format Configuration
+    • void setVideoFormat(const videoFormatProps& props)
+      Locks the output resolution and interlace/progressive mode of the physical hardware card or NDI stream (e.g., vF_HD1080_50i or vF_HD1080_50p).
+    • void getStats(OutputStats& stats)
+      Populates the current output status, including width, height, current frame rate, sampled audio channel data, and total dropped frame statistics.
+3. Comprehensive Usage Example (C++)
+This example demonstrates how to route a playing video from an LFile into an LMixer, and then send the final mixed composition out to the network as an NDI® Stream or physical DeckLink SDI output using the LOutput class.
+C++
+#include "LOutput.h"
+#include "LMixer.h"
+#include "LFile.h"
+#include "LFormat.h"
+#include <iostream>
+
+// 1. Initialize Objects
+LMixer* broadcastMixer = new LMixer();
+LFile* videoPlayer = new LFile();
+LOutput* hardwareOutput = new LOutput();
+
+// 2. Configure the Broadcast Format (e.g., 1080p at 50 FPS)
+videoFormatProps formatProps;
+formatProps.setVideoFormat = vF::HD1080_50p;
+broadcastMixer->setVideoFormat(formatProps);
+hardwareOutput->setVideoFormat(formatProps);
+
+// 3. Setup the Mixer (Add video player as the base layer)
+broadcastMixer->addLayer("bg_video", videoPlayer, 0, 0.0f, 0.0f, 255, 1920, 1080);
+
+// 4. Connect Output to the Mixer Sink
+// This ensures that whatever the mixer renders gets sent to the output engine.
+hardwareOutput->setSource(broadcastMixer);
+
+// 5. Configure Output Properties & Device
+// Let's find out how many hardware devices are available.
+int deviceCount = 0;
+hardwareOutput->DeviceGetCount(deviceCount);
+
+// In LOutput logic, the NDI Sender is dynamically appended to the end of the hardware list.
+// If there are 2 DeckLink cards (Index 0 and 1), Index 2 will be NDI.
+int targetDeviceIndex = deviceCount; // Defaulting to the last index (NDI Sender)
+
+hardwareOutput->setDevice(targetDeviceIndex);
+hardwareOutput->setProps("audio_gain", "1.2");      // Boost output audio by 20%
+hardwareOutput->setProps("scaling_quality", "2");   // Use Bilinear scaling
+hardwareOutput->setProps("timecode", "true");       // Embed timecode metadata
+
+// 6. Start the Engine and the Pipeline
+hardwareOutput->setEnabled(true);
+
+videoPlayer->fileNameSet("/media/broadcast_feed.mp4");
+videoPlayer->play();
+
+std::cout << "Broadcast is now live and routing to Output!" << std::endl;
+
+/* // 7. Optional: Read statistics periodically in a timer loop
+LOutput::OutputStats stats;
+hardwareOutput->getStats(stats);
+std::cout << "Output Resolution: " << stats.width << "x" << stats.height << std::endl;
+std::cout << "Dropped Frames: " << stats.droppedFrames << std::endl;
+*/
